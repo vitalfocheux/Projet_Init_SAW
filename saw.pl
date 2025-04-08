@@ -1,61 +1,115 @@
-:- compile(util).
 :- compile(measure).
+:- compile(util).
 
-/*Prédicat pour les 4 directions : nord, sud, est, ouest*/
+% Direction offsets: 0=East, 1=South, 2=West, 3=North
+dir(0,  (1,0)).
+dir(1,  (0,-1)).
+dir(2,  (-1,0)).
+dir(3,  (0,1)).
 
-dir(nord).
-dir(sud).
-dir(est).
-dir(ouest).
+% Compute position after following a sequence of directions
+walk([], Pos, [Pos]).
+walk([D|Ds], (X,Y), [(X,Y)|Path]) :-
+    dir(D, (DX,DY)),
+    NX is X + DX,
+    NY is Y + DY,
+    walk(Ds, (NX,NY), Path).
 
-/*Prédicat pour déterminer le suivant par rapport au sens horaire*/
+% Check if a list of positions is a SAW (no duplicates)
+is_saw_path(Path) :-
+    sort(Path, Sorted),
+    length(Path, L1),
+    length(Sorted, L2),
+    L1 =:= L2.
 
-next(est, sud).
-next(sud, ouest).
-next(ouest, nord).
-next(nord, est).
+% Apply clockwise (cw) or anticlockwise (ccw) fold
+fold([], _, _, []).
+fold([H|T], K, Type, [H2|T2]) :-
+    length([H|T], Len),
+    length(T, TLen),
+    Pos is Len - TLen - 1,
+    ( Pos < K -> H2 = H
+    ; fold_dir(H, Type, H2)
+    ),
+    fold(T, K, Type, T2).
 
-/*Prédicat pour énumérer toutes les combinaisons de liste possible avec 
-  les 4 directions*/
+% Rotation rules
+fold_dir(D, cw,  D2) :- D2 is (D + 1) mod 4.
+fold_dir(D, ccw, D2) :- D2 is (D - 1 + 4) mod 4.
 
-dir_seq([], 0).
-dir_seq([X|L], N) :- N > 0, Nm1 is N-1, dir(X), dir_seq(L, Nm1).
+% Check if a pivot at K gives a valid SAW
+pivot_is_saw(Seq, K) :-
+    ( fold(Seq, K, cw, CW), walk(CW, (0,0), Path1), is_saw_path(Path1)
+    ; fold(Seq, K, ccw, CCW), walk(CCW, (0,0), Path2), is_saw_path(Path2)
+    ).
 
-/* Prédicat qui permet de déterminer si une liste contient le même nombre de sud que de nord ou d'est que d'ouest */
-equilibre(L) :-
-    count(sud, L, SudCount),
-    count(nord, L, NordCount),
-    count(est, L, EstCount),
-    count(ouest, L, OuestCount),
-    (SudCount =\= NordCount; EstCount =\= OuestCount), !.
+% Main test: unfoldable = no pivot at any position gives valid SAW
+is_unfoldable(Seq) :-
+    \+ (nth0(K, Seq, _), pivot_is_saw(Seq, K)).
 
-/* Prédicat pour compter les occurrences d'un élément dans une liste */
-count(_, [], 0).
-count(X, [X|T], N) :-
-    count(X, T, N1),
-    N is N1 + 1, !.
-count(X, [_|T], N) :-
-    count(X, T, N).
-    
-/* Appliquer un pivot à partir d'une arête spécifique : modifie tout le graphe a partir de cet arrete en effectuant un pliage à 90 degré */
-pivot_horaire(L, K, L2) :-
-    length(Prefix, K),              
-    append(Prefix, Suffix, L),      
-    maplist(pivoter, Suffix, SuffixPivot),  
-    append(Prefix, SuffixPivot, L2).        
+% SAW test: build the walk path and check uniqueness
+is_saw(Seq) :-
+    walk(Seq, (0,0), Path),
+    is_saw_path(Path).
 
-/* Transformation horaire d'une direction */
-pivoter(D, D2) :- next(D, D2).
+% Génère une séquence foldable de taille N (par essais successifs)
+generate_foldable_candidate(N, Seq) :-
+    length(Seq, N),
+    maplist(between(0,3), Seq),
+    is_saw(Seq),
+    \+ is_unfoldable(Seq).
 
+get_L1(L1) :-
+    myread('L_1.txt', L1).
 
+get_R1(R1) :-
+    myread('R_1.txt', R1).
 
-/* Générer tous les indices de pivot possibles (de 0 à N-1) */
-indices_possibles(L, Indices) :-
-    length(L, Len),
-    MaxIndex is Len - 1,
-    findall(I, between(0, MaxIndex, I), Indices).
+get_P_2(P_2) :-
+    myread('P_2.txt', P_2).
 
-/* Générer tous les pliages horaires possibles d'un chemin */
-tous_pliages_horaires(Chemin, Pliages) :-
-    indices_possibles(Chemin, Indices),
-    findall(P, (member(K, Indices), pivot_horaire(Chemin, K, P)), Pliages).
+get_P_1(P_1) :-
+    myread('P_1.txt', P_1).
+
+write_to_file(FileName, Content) :-
+    open(FileName, write, Stream),  % Ouvre le fichier en mode écriture
+    write(Stream, Content),        % Écrit le contenu dans le fichier
+    nl(Stream),                    % Ajoute une nouvelle ligne (optionnel)
+    close(Stream).                 % Ferme le fichier
+
+% Ajoute 4 fois le chiffre à la fin des suites consécutives de longueur > 2
+extend_consecutive([], []).
+extend_consecutive([X|Xs], Result) :-
+    take_while(=(X), [X|Xs], Group, Rest), % Prend les éléments consécutifs identiques
+    length(Group, Len),
+    (   Len > 2
+    ->  append(Group, [X, X, X, X], ExtendedGroup) % Ajoute 4 fois X si longueur > 2
+    ;   ExtendedGroup = Group
+    ),
+    extend_consecutive(Rest, RestResult),
+    append(ExtendedGroup, RestResult, Result).
+
+% Prend les éléments consécutifs identiques
+take_while(_, [], [], []).
+take_while(Pred, [X|Xs], [X|Ys], Rest) :-
+    call(Pred, X),
+    take_while(Pred, Xs, Ys, Rest).
+take_while(Pred, [X|Xs], [], [X|Xs]) :-
+    \+ call(Pred, X).
+
+% Ajoute 2 fois le chiffre de début et de fin
+modify_sequence(Seq, ModifiedSeq) :-
+    Seq = [Start|_],
+    append(_, [End], Seq),
+    extend_consecutive(Seq, ExtendedSeq),
+    append([Start, Start], ExtendedSeq, TempSeq),
+    append(TempSeq, [End, End], ModifiedSeq).
+
+% Concatène 2 suites ensembles avec une suite
+% Exemple S1 = [1,2,3], S2 = [4,5,6], S3 = [7,8,9] -> Result = [1,2,3,4,5,6,7,8,9]
+concat_two_sequences_with_one_sequence(S0, S1, S2, Result) :-
+    append(S0, S1, TempResult),
+    append(TempResult, S2, Result).
+
+% concat_two_sequences_with_one_sequence(L1, [0,0,1], P_1, Result) -> concatène les suites L1, [0,0,1] et P_1 dans Result
+% concat_two_sequences_with_one_sequence(R1, [2], P_2, Result) -> concatène les suites R1, [2] et P_2 dans Result
