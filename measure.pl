@@ -175,10 +175,17 @@ clean([],[]).
 clean([X|L],NewL) :- (atomic(X) -> (NewL=CL);(NewL=[X|CL])), clean(L,CL).
 
 % usage: myread('filename.txt',List).
-myread(FileName,L) :-
-    open(FileName, read, Str),
-    read_file(Str,L),
-    close(Str).
+% myread(FileName,L) :-
+%     open(FileName, read, Str),
+%     read_file(Str,L),
+%     close(Str).
+
+myread(FileName, L1) :-
+    open(FileName, read, Stream),
+    read_string(Stream, _, String), % Lire le contenu du fichier comme une chaîne
+    close(Stream),
+    string_chars(String, Chars),   % Convertir la chaîne en une liste de caractères
+    maplist(atom_number, Chars, L1). % Convertir chaque caractère en un nombre
 
 read_file(Stream,[]) :-
     at_end_of_stream(Stream).
