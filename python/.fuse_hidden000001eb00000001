@@ -9,6 +9,8 @@ Original file is located at
 # Downloads and Imports
 """
 
+!pip install ipyturtle3
+
 import random
 import matplotlib.pyplot as plt
 import numpy as np
@@ -116,8 +118,6 @@ import matplotlib.pyplot as plt
 import os
 
 def draw_path_and_export(digits, directory_path):
-    if not os.path.exists(directory_path):
-        os.makedirs(directory_path)
     # Initialiser les coordonnées
     x, y = 0, 0
     x_coords, y_coords = [x], [y]
@@ -163,15 +163,14 @@ def draw_path_and_export(digits, directory_path):
 # Fonction principale
 def main():
   # the path of the file
-  input_file_path = "./R_1.txt" #modifier le chemin relatif vers le fichier des saw
-  output_directory_path = "./drawing" # modifier le chemin relatif vers le dossier de sortie (peut ne pas exister)
+  file_path = "/content/test.txt"
 
   # translate the path to a digit tab
-  digits = get_paths_from_file(input_file_path)
+  digits = get_paths_from_file(file_path)
 
   for digit in digits:
 
-    draw_path_and_export(digit, output_directory_path)
+    draw_path_and_export(digit, "/content/")
 
 # Exécuter la fonction principale
 main()
