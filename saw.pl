@@ -46,3 +46,16 @@ pivot_horaire(L, K, L2) :-
 
 /* Transformation horaire d'une direction */
 pivoter(D, D2) :- next(D, D2).
+
+
+
+/* Générer tous les indices de pivot possibles (de 0 à N-1) */
+indices_possibles(L, Indices) :-
+    length(L, Len),
+    MaxIndex is Len - 1,
+    findall(I, between(0, MaxIndex, I), Indices).
+
+/* Générer tous les pliages horaires possibles d'un chemin */
+tous_pliages_horaires(Chemin, Pliages) :-
+    indices_possibles(Chemin, Indices),
+    findall(P, (member(K, Indices), pivot_horaire(Chemin, K, P)), Pliages).
