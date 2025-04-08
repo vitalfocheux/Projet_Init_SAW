@@ -36,3 +36,13 @@ count(X, [X|T], N) :-
     N is N1 + 1, !.
 count(X, [_|T], N) :-
     count(X, T, N).
+    
+/* Appliquer un pivot à partir d'une arête spécifique : modifie tout le graphe a partir de cet arrete en effectuant un pliage à 90 degré */
+pivot_horaire(L, K, L2) :-
+    length(Prefix, K),              
+    append(Prefix, Suffix, L),      
+    maplist(pivoter, Suffix, SuffixPivot),  
+    append(Prefix, SuffixPivot, L2).        
+
+/* Transformation horaire d'une direction */
+pivoter(D, D2) :- next(D, D2).
