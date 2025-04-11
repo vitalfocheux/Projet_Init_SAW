@@ -71,6 +71,7 @@ get_P_2(P_2) :-
 get_P_1(P_1) :-
     myread('P_1.txt', P_1).
 
+% TODO: regarder pour qu'il écrive la liste en entier dans le fichier
 write_to_file(FileName, Content) :-
     open(FileName, write, Stream),  % Ouvre le fichier en mode écriture
     write(Stream, Content),        % Écrit le contenu dans le fichier
@@ -111,5 +112,17 @@ concat_two_sequences_with_one_sequence(S0, S1, S2, Result) :-
     append(S0, S1, TempResult),
     append(TempResult, S2, Result).
 
-% concat_two_sequences_with_one_sequence(L1, [0,0,1], P_1, Result) -> concatène les suites L1, [0,0,1] et P_1 dans Result
-% concat_two_sequences_with_one_sequence(R1, [2], P_2, Result) -> concatène les suites R1, [2] et P_2 dans Result
+% Génère le s_0 et vérifie si c'est bien un USAW
+% TODO: optimiser les prédicats is_unfoldable
+generate_sequence() :-
+    get_L1(L1),
+    get_R1(R1),
+    get_P_2(P_2),
+    get_P_1(P_1),
+    concat_two_sequences_with_one_sequence(L1, [0,0,1], P_1, Result1),
+    concat_two_sequences_with_one_sequence(Result1, [1,2,3], P_2, Result2),
+    concat_two_sequences_with_one_sequence(Result2, [2], R2, Result),
+    % is_saw(Result),
+    % is_unfoldable(Result).
+    write(Result),
+    write_to_file('result.txt', Result).
