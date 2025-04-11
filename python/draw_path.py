@@ -30,7 +30,7 @@ def get_paths_from_file(file_path):
     return result
 
 """
-* Example usage:
+* Example well formed file:
 * If the input file contains:
 * 0123
 * 3210
@@ -38,20 +38,20 @@ def get_paths_from_file(file_path):
 """
 
 
-# conversion des entier en 
+# integer between 0 and 3 to coordinates
 
 def int_to_coordinates(digits):
     x, y = 0, 0
     x_coords, y_coords = [x], [y]
 
     for digit in digits:
-        if digit == 3:  # Nord
+        if digit == 3:    # North
             y += 1
-        elif digit == 1:  # Sud
+        elif digit == 1:  # South
             y -= 1
-        elif digit == 0:  # Est
+        elif digit == 0:  # East
             x += 1
-        elif digit == 2:  # Ouest
+        elif digit == 2:  # West
             x -= 1
 
         x_coords.append(x)
@@ -61,22 +61,22 @@ def int_to_coordinates(digits):
 
 # print a self avoiding path
 
-# Fonction pour dessiner le chemin et générer les images PNG de ces chemins
+# Function for drawing the path and generating PNG images of these paths
 def draw_path_and_export(digits, directory_path):
     if not os.path.exists(directory_path):
         os.makedirs(directory_path)
-    # Initialiser les coordonnées
+    # Initialise coordinates
     x_coords, y_coords = int_to_coordinates(digits)
 
-    # Dessiner le chemin avec matplotlib
+    # Draw the path with matplotlib
     plt.figure(figsize=(8, 8))
     plt.plot(x_coords, y_coords, 'b-')
     plt.scatter(x_coords[0], y_coords[0], color='green', label='Départ')
     plt.scatter(x_coords[-1], y_coords[-1], color='red', label='Arrivée')
     plt.legend()
-    plt.axis('equal')  # Pour que les axes soient égaux
+    plt.axis('equal')  # to avoid distortion
 
-    # Générer un nom de fichier unique pour éviter d'écraser un fichier existant
+    # Generate a unique filename to avoid overwriting existing files
     base_filename = "drawing"
     file_extension = ".png"
     output_path = os.path.join(directory_path, base_filename + file_extension)
@@ -86,9 +86,9 @@ def draw_path_and_export(digits, directory_path):
         output_path = os.path.join(directory_path, f"{base_filename}_{counter}{file_extension}")
         counter += 1
 
-    # Sauvegarder le dessin en PNG dans le répertoire spécifié
+    # Save the drawing as PNG in the specified directory
     plt.savefig(output_path)
-    plt.close()  # Fermer la figure pour éviter d'occuper la mémoire
+    plt.close()  # Closed the figure to avoid memory issues
 
     print(f"Image sauvegardée dans : {output_path}")
 
@@ -96,11 +96,11 @@ def draw_path_and_export(digits, directory_path):
 
 
 
-# Fonction principale
+# Main function to execute the script
 def main():
   # the path of the file
-  input_file_path = "./L_1.txt" #modifier le chemin relatif vers le fichier des saw
-  output_directory_path = "./drawing" # modifier le chemin relatif vers le dossier de sortie (peut ne pas exister)
+  input_file_path = "./L_1.txt" # Modify the relative path to the file
+  output_directory_path = "./drawing" # Modify the relative path to the output directory (may not exist)
 
   # translate the path to a digit tab
   digits = get_paths_from_file(input_file_path)
@@ -109,5 +109,5 @@ def main():
 
     draw_path_and_export(digit, output_directory_path)
 
-# Exécuter la fonction principale
+# Execute the main function
 main()
