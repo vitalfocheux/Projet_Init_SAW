@@ -37,26 +37,6 @@ def get_paths_from_file(file_path):
 """
 
 
-# integer between 0 and 3 to coordinates
-
-def int_to_coordinates(digits):
-    x, y = 0, 0
-    x_coords, y_coords = [x], [y]
-
-    for digit in digits:
-        if digit == 3:    # North
-            y += 1
-        elif digit == 1:  # South
-            y -= 1
-        elif digit == 0:  # East
-            x += 1
-        elif digit == 2:  # West
-            x -= 1
-
-        x_coords.append(x)
-        y_coords.append(y)
-
-    return (x_coords, y_coords)
 def is_saw(trail) : 
     posX = 0
     posY = 0
@@ -77,6 +57,7 @@ def is_saw(trail) :
             return False  
 
         visited.add((posX, posY))
+    print(f'Visited: {visited}')  # Debugging line to see visited coordinates
     return True
 def folding(trail, k, direction="cw"):
     if k < 0 or k >= len(trail):
@@ -114,11 +95,13 @@ def P1P2Raw(figure, progress, addForMod):
 
 
     # addformod = 2 on va dans le sens p2 ; addformod = 0 on va sens p1
-   
+    mod1 = (addForMod + 1) % 4
+    mod2 = (addForMod + 2) % 4
+    mod3 = (addForMod + 3) % 4
 
     # stairs 1
     for _ in range(4): 
-        figure += [2, (1 + addForMod ) % 4 ]
+        figure += [2, mod1 ]
     #line left init 
     for _ in range(6): 
         figure += [2]
@@ -129,18 +112,18 @@ def P1P2Raw(figure, progress, addForMod):
 
     # stairs 2
     for _ in range(4): 
-        figure += [(3 + addForMod ) % 4 , 2]
+        figure += [mod3 , 2]
     #line up /down init 
     for _ in range(6): 
-        figure += [(3 + addForMod ) % 4]
+        figure += [mod3]
     #line up/down scale 
     for _ in range(progress): 
-        figure += [(3 + addForMod ) % 4  , (3 + addForMod ) % 4 ]
+        figure += [mod3,mod3]
 
 
     # stairs 3
     for _ in range(4): 
-        figure += [0 , (3 + addForMod ) % 4]
+        figure += [0 , mod3]
     #line right init 
     for _ in range(6): 
         figure += [0]
@@ -151,7 +134,7 @@ def P1P2Raw(figure, progress, addForMod):
 
     #final stairs 
     for _ in range(4): 
-        figure += [(1 + addForMod ) % 4 , 0]
+        figure += [mod1 , 0]
 
     return figure
 
@@ -296,7 +279,7 @@ def main():
 
 
 # test : 8 premiers usaw
-  for i in range(8):# 0 marche pas c'est normal je pense
+  for i in range(2):# 0 marche pas c'est normal je pense
     res = create_usaw(i, L1, R1)
     printTrail(res)
     if not (is_saw(res) and is_usaw(res)[0]):
