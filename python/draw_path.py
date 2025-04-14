@@ -92,22 +92,66 @@ def draw_path_and_export(digits, directory_path):
 
     print(f"Image sauvegardée dans : {output_path}")
 
+# if __name__ == "__main__":
+#     # the path of the file
+#     input_file_path = "./usaw.txt" # Modify the relative path to the file
+#     output_directory_path = "./drawing" # Modify the relative path to the output directory (may not exist)
+
+#     # translate the path to a digit tab
+#     digits = get_paths_from_file(input_file_path)
+
+#     for digit in digits:
+#         draw_path_and_export(digit, output_directory_path)
+
+import subprocess
+import glob
+
+def run_prolog_script():
+    # Commande pour exécuter SWI-Prolog avec le fichier saw.pl
+    command = ["swipl", "-s", "test.pl", "-g", "main(8),halt."] #Modifier le nombre dans main pour choisir le nombre de usaw à générer
+
+    try:
+        # Exécute la commande et attend qu'elle se termine
+        result = subprocess.run(command, text=True, capture_output=True, check=True)
+
+        # Affiche la sortie standard de Prolog
+        print("Prolog Output:")
+        print(result.stdout)
+
+        # Retourne True si tout s'est bien passé
+        return True
+    except subprocess.CalledProcessError as e:
+        # Affiche les erreurs si la commande échoue
+        print("Prolog Error:")
+        print(e.stderr)
+        return False
+    
+def clear_png_files(directory_path):
+    """Supprime tous les fichiers .png dans le répertoire spécifié."""
+    png_files = glob.glob(os.path.join(directory_path, "*.png"))  # Trouve tous les fichiers .png
+    for file in png_files:
+        try:
+            os.remove(file)  # Supprime chaque fichier
+            print(f"Supprimé : {file}")
+        except OSError as e:
+            print(f"Erreur lors de la suppression de {file}: {e}")
 
 
+if __name__ == "__main__":
+    success = run_prolog_script()
+    if success:
+        
+        print("Le prédicat main(8) a été exécuté avec succès.")
+        # the path of the file
+        input_file_path = "./usaw.txt" # Modify the relative path to the file
+        output_directory_path = "./drawing" # Modify the relative path to the output directory (may not exist)
 
+        clear_png_files(output_directory_path)
 
-# Main function to execute the script
-def main():
-  # the path of the file
-  input_file_path = "./L_1.txt" # Modify the relative path to the file
-  output_directory_path = "./drawing" # Modify the relative path to the output directory (may not exist)
+        # translate the path to a digit tab
+        digits = get_paths_from_file(input_file_path)
 
-  # translate the path to a digit tab
-  digits = get_paths_from_file(input_file_path)
-
-  for digit in digits:
-
-    draw_path_and_export(digit, output_directory_path)
-
-# Execute the main function
-main()
+        for digit in digits:
+            draw_path_and_export(digit, output_directory_path)
+    else:
+        print("Une erreur s'est produite lors de l'exécution de main(8).")
