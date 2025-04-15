@@ -8,7 +8,7 @@ import random
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-
+import time
 
 # get the path from a text file
 
@@ -108,7 +108,7 @@ import glob
 
 def run_prolog_script():
     # Commande pour exécuter SWI-Prolog avec le fichier saw.pl
-    command = ["swipl", "-s", "test.pl", "-g", "main(8),halt."] #Modifier le nombre dans main pour choisir le nombre de usaw à générer
+    command = ["swipl", "-s", "saw.pl", "-g", "main(8),halt."] #Modifier le nombre dans main pour choisir le nombre de usaw à générer
 
     try:
         # Exécute la commande et attend qu'elle se termine
@@ -138,6 +138,7 @@ def clear_png_files(directory_path):
 
 
 if __name__ == "__main__":
+    start = time.time()  # Start time
     success = run_prolog_script()
     if success:
         
@@ -153,5 +154,9 @@ if __name__ == "__main__":
 
         for digit in digits:
             draw_path_and_export(digit, output_directory_path)
+
+        end = time.time()
+        elapsed_time = end - start
+        print(f"Temps écoulé : {elapsed_time:.2f} secondes")
     else:
         print("Une erreur s'est produite lors de l'exécution de main(8).")
