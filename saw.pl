@@ -124,11 +124,6 @@ addP1P2ToFigureNtimes(N, Figure, P1Turn, Progress, Result) :-
 
 % Prédicat auxiliaire pour répéter un élément dans une liste
 repeat_append(_, 0, List, List).
-% repeat_append(Element, Count, List, Result) :-
-%     Count > 0,
-%     append(List, [Element], TempList),
-%     NewCount is Count - 1,
-%     repeat_append(Element, NewCount, TempList, Result).
 repeat_append(Element, Count, List, Result) :-
     Count > 0,
     is_list(Element),
